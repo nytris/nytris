@@ -13,21 +13,22 @@ declare(strict_types=1);
 
 namespace Nytris\Tests\Unit\Harness;
 
-use Nytris\Core\Package\PackageConfigInterface;
+use Nytris\Core\Package\PackageContextInterface;
+use Nytris\Core\Package\PackageInterface;
 
 /**
- * Interface PackageSpyInterface.
+ * Interface PackageFacadeSpyInterface.
  *
  * Allows type-safe testing of the static package API.
  *
  * @author Dan Phillimore <dan@ovms.co>
  */
-interface PackageSpyInterface
+interface PackageFacadeSpyInterface
 {
     /**
      * Installs the package.
      */
-    public function install(PackageConfigInterface $packageConfig): void;
+    public function install(PackageContextInterface $packageContext, PackageInterface $package): void;
 
     /**
      * Uninstalls the package.

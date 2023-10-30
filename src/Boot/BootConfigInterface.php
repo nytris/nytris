@@ -27,7 +27,7 @@ interface BootConfigInterface
     /**
      * Fetches the installed packages.
      *
-     * @return class-string<PackageInterface>[]
+     * @return PackageInterface[]
      */
     public function getPackages(): array;
 
@@ -38,8 +38,6 @@ interface BootConfigInterface
 
     /**
      * Installs a Nytris package to be used.
-     *
-     * @param class-string<PackageInterface> $packageFqcn
      */
-    public function installPackage(string $packageFqcn): void;
+    public function installPackage(PackageInterface $package): void;
 }

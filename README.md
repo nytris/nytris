@@ -26,7 +26,7 @@ use Nytris\Boot\PlatformConfig;
 
 $bootConfig = new BootConfig(new PlatformConfig(__DIR__ . '/var/cache/nytris/'));
 
-$bootConfig->installPackage(<Nytris package FQCN>);
+$bootConfig->installPackage(new MyNytrisPackage([...]));
 
 return $bootConfig;
 ```

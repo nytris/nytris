@@ -16,6 +16,7 @@ namespace Nytris\Core\Package;
 /**
  * Interface PackageInterface.
  *
+ * Provides the configuration for a specific Nytris package.
  * Implemented by Nytris packages.
  *
  * @author Dan Phillimore <dan@ovms.co>
@@ -23,22 +24,9 @@ namespace Nytris\Core\Package;
 interface PackageInterface
 {
     /**
-     * Fetches the name of the package within its vendor.
+     * Fetches the FQCN of the Nytris package facade.
+     *
+     * @return class-string<PackageFacadeInterface>
      */
-    public static function getName(): string;
-
-    /**
-     * Fetches the unique name of the package vendor.
-     */
-    public static function getVendor(): string;
-
-    /**
-     * Installs the package.
-     */
-    public static function install(PackageConfigInterface $packageConfig): void;
-
-    /**
-     * Uninstalls the package.
-     */
-    public static function uninstall(): void;
+    public function getPackageFacadeFqcn(): string;
 }

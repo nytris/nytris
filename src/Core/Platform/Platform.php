@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Nytris\Core\Platform;
 
 use Nytris\Boot\BootConfigInterface;
-use Nytris\Core\Package\PackageConfig;
+use Nytris\Core\Package\PackageContext;
 
 /**
  * Class Platform.
@@ -37,11 +37,13 @@ class Platform implements PlatformInterface
     {
         $platformConfig = $this->config->getPlatformConfig();
 
-        foreach ($this->config->getPackages() as $packageFqcn) {
-            $packageConfig = new PackageConfig($platformConfig, $packageFqcn);
+        foreach ($this->config->getPackages() as $package) {
+            $packageFacadeFqcn = $package->getPackageFacadeFqcn();
+
+            $packageContext = new PackageContext($platformConfig, $packageFacadeFqcn);
 
             /** @noinspection PhpUndefinedMethodInspection */
-            $packageFqcn::install($packageConfig);
+            $packageFacadeFqcn::install($packageContext, $package);
         }
     }
 
@@ -50,9 +52,11 @@ class Platform implements PlatformInterface
      */
     public function shutdown(): void
     {
-        foreach ($this->config->getPackages() as $packageFqcn) {
+        foreach ($this->config->getPackages() as $package) {
+            $packageFacadeFqcn = $package->getPackageFacadeFqcn();
+
             /** @noinspection PhpUndefinedMethodInspection */
-            $packageFqcn::uninstall();
+            $packageFacadeFqcn::uninstall();
         }
     }
 }

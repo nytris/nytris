@@ -16,13 +16,13 @@ namespace Nytris\Core\Package;
 use Nytris\Core\Config\ConfigInterface;
 
 /**
- * Interface PackageConfigInterface.
+ * Interface PackageContextInterface.
  *
- * Provides the configuration for a specific Nytris package.
+ * Provides the context for a specific Nytris package.
  *
  * @author Dan Phillimore <dan@ovms.co>
  */
-interface PackageConfigInterface extends ConfigInterface
+interface PackageContextInterface extends ConfigInterface
 {
     /**
      * Fetches the cache path for this package.

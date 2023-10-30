@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Nytris\Boot;
 
 use InvalidArgumentException;
+use Nytris\Core\Package\PackageFacadeInterface;
 use Nytris\Core\Package\PackageInterface;
 
 /**
@@ -26,9 +27,9 @@ use Nytris\Core\Package\PackageInterface;
 class BootConfig implements BootConfigInterface
 {
     /**
-     * @var class-string<PackageInterface>[]
+     * @var PackageInterface[]
      */
-    private array $packageFqcns = [];
+    private array $packages = [];
 
     public function __construct(
         private readonly PlatformConfigInterface $platformConfig
@@ -40,7 +41,7 @@ class BootConfig implements BootConfigInterface
      */
     public function getPackages(): array
     {
-        return $this->packageFqcns;
+        return $this->packages;
     }
 
     /**
@@ -54,19 +55,21 @@ class BootConfig implements BootConfigInterface
     /**
      * @inheritDoc
      */
-    public function installPackage(string $packageFqcn): void
+    public function installPackage(PackageInterface $package): void
     {
-        if (!is_a($packageFqcn, PackageInterface::class, true)) {
+        $packageFqcn = $package->getPackageFacadeFqcn();
+
+        if (!is_a($packageFqcn, PackageFacadeInterface::class, true)) {
             throw new InvalidArgumentException(
                 sprintf(
-                    '%s() :: $packageFqcn must be a "%s" but it was a "%s"',
+                    '%s() :: Package facade FQCN must be a "%s" but it was a "%s"',
                     __METHOD__,
-                    PackageInterface::class,
+                    PackageFacadeInterface::class,
                     $packageFqcn
                 )
             );
         }
 
-        $this->packageFqcns[] = $packageFqcn;
+        $this->packages[] = $package;
     }
 }

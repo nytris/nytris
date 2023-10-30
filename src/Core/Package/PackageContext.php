@@ -16,21 +16,21 @@ namespace Nytris\Core\Package;
 use Nytris\Boot\PlatformConfigInterface;
 
 /**
- * Class PackageConfig.
+ * Class PackageContext.
  *
- * Provides the configuration for a specific Nytris package.
+ * Provides the context for a specific Nytris package.
  *
  * @author Dan Phillimore <dan@ovms.co>
  */
-class PackageConfig implements PackageConfigInterface
+class PackageContext implements PackageContextInterface
 {
     /**
      * @param PlatformConfigInterface $platformConfig
-     * @param class-string<PackageInterface> $packageFqcn
+     * @param class-string<PackageFacadeInterface> $packageFacadeFqcn
      */
     public function __construct(
         private readonly PlatformConfigInterface $platformConfig,
-        private readonly string $packageFqcn
+        private readonly string $packageFacadeFqcn
     ) {
     }
 
@@ -47,6 +47,6 @@ class PackageConfig implements PackageConfigInterface
      */
     public function getPackageCachePath(): string
     {
-        return $this->platformConfig->getBaseCachePath() . '/' . $this->packageFqcn::getName();
+        return $this->platformConfig->getBaseCachePath() . '/' . $this->packageFacadeFqcn::getName();
     }
 }

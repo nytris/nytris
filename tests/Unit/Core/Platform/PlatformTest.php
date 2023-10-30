@@ -17,11 +17,12 @@ use Mockery;
 use Mockery\MockInterface;
 use Nytris\Boot\BootConfigInterface;
 use Nytris\Boot\PlatformConfigInterface;
-use Nytris\Core\Package\PackageConfigInterface;
+use Nytris\Core\Package\PackageContextInterface;
+use Nytris\Core\Package\PackageFacadeInterface;
 use Nytris\Core\Package\PackageInterface;
 use Nytris\Core\Platform\Platform;
 use Nytris\Tests\AbstractTestCase;
-use Nytris\Tests\Unit\Harness\PackageSpyInterface;
+use Nytris\Tests\Unit\Harness\PackageFacadeSpyInterface;
 
 /**
  * Class PlatformTest.
@@ -30,25 +31,27 @@ use Nytris\Tests\Unit\Harness\PackageSpyInterface;
  */
 class PlatformTest extends AbstractTestCase
 {
-    private MockInterface&BootConfigInterface $config;
+    private MockInterface&BootConfigInterface $bootConfig;
+    private MockInterface&PackageInterface $package1;
     /**
-     * @var class-string<PackageInterface>
+     * @var class-string<PackageFacadeInterface>
      */
-    private string $package1Fqcn;
-    public MockInterface&PackageSpyInterface $package1Spy;
+    private string $packageFacade1Fqcn;
+    public MockInterface&PackageFacadeSpyInterface $packageFacade1Spy;
+    private MockInterface&PackageInterface $package2;
     /**
-     * @var class-string<PackageInterface>
+     * @var class-string<PackageFacadeInterface>
      */
-    private string $package2Fqcn;
-    public MockInterface&PackageSpyInterface $package2Spy;
+    private string $packageFacade2Fqcn;
+    public MockInterface&PackageFacadeSpyInterface $packageFacade2Spy;
     private Platform $platform;
     private MockInterface&PlatformConfigInterface $platformConfig;
 
     public function setUp(): void
     {
         $this->platformConfig = mock(PlatformConfigInterface::class);
-        $this->package1Spy = spy(PackageSpyInterface::class);
-        $this->package1Fqcn = get_class(new class implements PackageInterface {
+        $this->packageFacade1Spy = spy(PackageFacadeSpyInterface::class);
+        $this->packageFacade1Fqcn = get_class(new class implements PackageFacadeInterface {
             public static PlatformTest $test;
 
             public static function getName(): string
@@ -61,20 +64,23 @@ class PlatformTest extends AbstractTestCase
                 return 'test';
             }
 
-            public static function install(PackageConfigInterface $packageConfig): void
+            public static function install(PackageContextInterface $packageContext, PackageInterface $package): void
             {
-                self::$test->package1Spy->install($packageConfig);
+                self::$test->packageFacade1Spy->install($packageContext, $package);
             }
 
             public static function uninstall(): void
             {
-                self::$test->package1Spy->uninstall();
+                self::$test->packageFacade1Spy->uninstall();
             }
         });
-        $this->package1Fqcn::$test = $this;
+        $this->package1 = mock(PackageInterface::class, [
+            'getPackageFacadeFqcn' => $this->packageFacade1Fqcn,
+        ]);
+        $this->packageFacade1Fqcn::$test = $this;
 
-        $this->package2Spy = spy(PackageSpyInterface::class);
-        $this->package2Fqcn = get_class(new class implements PackageInterface {
+        $this->packageFacade2Spy = spy(PackageFacadeSpyInterface::class);
+        $this->packageFacade2Fqcn = get_class(new class implements PackageFacadeInterface {
             public static PlatformTest $test;
 
             public static function getName(): string
@@ -87,33 +93,36 @@ class PlatformTest extends AbstractTestCase
                 return 'test';
             }
 
-            public static function install(PackageConfigInterface $packageConfig): void
+            public static function install(PackageContextInterface $packageContext, PackageInterface $package): void
             {
-                self::$test->package2Spy->install($packageConfig);
+                self::$test->packageFacade2Spy->install($packageContext, $package);
             }
 
             public static function uninstall(): void
             {
-                self::$test->package2Spy->uninstall();
+                self::$test->packageFacade2Spy->uninstall();
             }
         });
-        $this->package2Fqcn::$test = $this;
+        $this->package2 = mock(PackageInterface::class, [
+            'getPackageFacadeFqcn' => $this->packageFacade2Fqcn,
+        ]);
+        $this->packageFacade2Fqcn::$test = $this;
 
-        $this->config = mock(BootConfigInterface::class, [
-            'getPackages' => [$this->package1Fqcn, $this->package2Fqcn],
+        $this->bootConfig = mock(BootConfigInterface::class, [
+            'getPackages' => [$this->package1, $this->package2],
             'getPlatformConfig' => $this->platformConfig,
         ]);
 
-        $this->platform = new Platform($this->config);
+        $this->platform = new Platform($this->bootConfig);
     }
 
     public function testBootInstallsAllRegisteredPackages(): void
     {
-        $this->package1Spy->expects()
-            ->install(Mockery::type(PackageConfigInterface::class))
+        $this->packageFacade1Spy->expects()
+            ->install(Mockery::type(PackageContextInterface::class), $this->package1)
             ->once();
-        $this->package2Spy->expects()
-            ->install(Mockery::type(PackageConfigInterface::class))
+        $this->packageFacade2Spy->expects()
+            ->install(Mockery::type(PackageContextInterface::class), $this->package2)
             ->once();
 
         $this->platform->boot();
@@ -121,10 +130,10 @@ class PlatformTest extends AbstractTestCase
 
     public function testShutdownUninstallsAllRegisteredPackages(): void
     {
-        $this->package1Spy->expects()
+        $this->packageFacade1Spy->expects()
             ->uninstall()
             ->once();
-        $this->package2Spy->expects()
+        $this->packageFacade2Spy->expects()
             ->uninstall()
             ->once();
 
