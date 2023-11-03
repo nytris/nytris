@@ -13,17 +13,20 @@ declare(strict_types=1);
 
 namespace Nytris\Core\Bootstrap;
 
+use Nytris\Boot\BootConfigInterface;
+use Nytris\Core\Platform\PlatformInterface;
+
 /**
  * Interface BootstrapInterface.
  *
- * Bootstraps the Nytris platform.
+ * Handles booting Nytris platform from a boot config nytris.config.php.
  *
  * @author Dan Phillimore <dan@ovms.co>
  */
 interface BootstrapInterface
 {
     /**
-     * Bootstraps the Nytris platform.
+     * Boots Nytris platform from a boot config.
      */
-    public function bootstrap(): void;
+    public function boot(BootConfigInterface $bootConfig): PlatformInterface;
 }

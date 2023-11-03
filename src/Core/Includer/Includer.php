@@ -29,15 +29,14 @@ class Includer implements IncluderInterface
 
     public function __construct()
     {
-        $this->include = Closure::bind(static fn ($path) => @include $path, null, null);
+        $this->include = Closure::bind(static fn ($path) => include $path, null, null);
     }
 
     /**
      * @inheritDoc
      */
-    public function suppressedIsolatedInclude(string $path): mixed
+    public function isolatedInclude(string $path): mixed
     {
-        // Use a suppressed include rather than is_file(...) etc. to avoid disk hits when opcache can serve.
         return ($this->include)($path);
     }
 }

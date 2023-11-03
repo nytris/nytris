@@ -11,17 +11,21 @@
 
 declare(strict_types=1);
 
-namespace Nytris\Core\Includer;
+namespace Nytris\Core\Config;
+
+use Nytris\Boot\BootConfigInterface;
 
 /**
- * Interface IncluderInterface.
+ * Interface BootConfigResolverInterface.
+ *
+ * Resolves the boot config from nytris.config.php, if present.
  *
  * @author Dan Phillimore <dan@ovms.co>
  */
-interface IncluderInterface
+interface BootConfigResolverInterface
 {
     /**
-     * Includes a PHP module.
+     * Resolves the boot config, if present.
      */
-    public function isolatedInclude(string $path): mixed;
+    public function resolveBootConfig(): ?BootConfigInterface;
 }

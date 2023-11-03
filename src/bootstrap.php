@@ -11,9 +11,6 @@
 
 declare(strict_types=1);
 
-use Composer\Autoload\ClassLoader;
-use Nytris\Core\Bootstrap\Bootstrap;
-use Nytris\Core\Includer\Includer;
-use Nytris\Core\Platform\PlatformFactory;
+use Nytris\Nytris;
 
-(new Bootstrap(new ReflectionClass(ClassLoader::class), new Includer(), new PlatformFactory()))->bootstrap();
+Nytris::initialise();
