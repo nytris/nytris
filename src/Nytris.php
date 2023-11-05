@@ -69,6 +69,14 @@ class Nytris
     }
 
     /**
+     * Determines whether Nytris platform has booted.
+     */
+    public static function hasBooted(): bool
+    {
+        return self::$platform !== null;
+    }
+
+    /**
      * Initialises Nytris platform ready to be booted.
      */
     public static function initialise(
