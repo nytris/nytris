@@ -38,6 +38,11 @@ interface PackageFacadeInterface
     public static function install(PackageContextInterface $packageContext, PackageInterface $package): void;
 
     /**
+     * Determines whether the package has been installed or not.
+     */
+    public static function isInstalled(): bool;
+
+    /**
      * Uninstalls the package.
      */
     public static function uninstall(): void;

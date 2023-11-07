@@ -52,6 +52,7 @@ class PlatformTest extends AbstractTestCase
         $this->platformConfig = mock(PlatformConfigInterface::class);
         $this->packageFacade1Spy = spy(PackageFacadeSpyInterface::class);
         $this->packageFacade1Fqcn = get_class(new class implements PackageFacadeInterface {
+            private static bool $installed = false;
             public static PlatformTest $test;
 
             public static function getName(): string
@@ -67,11 +68,20 @@ class PlatformTest extends AbstractTestCase
             public static function install(PackageContextInterface $packageContext, PackageInterface $package): void
             {
                 self::$test->packageFacade1Spy->install($packageContext, $package);
+
+                self::$installed = true;
+            }
+
+            public static function isInstalled(): bool
+            {
+                return self::$installed;
             }
 
             public static function uninstall(): void
             {
                 self::$test->packageFacade1Spy->uninstall();
+
+                self::$installed = false;
             }
         });
         $this->package1 = mock(PackageInterface::class, [
@@ -81,6 +91,7 @@ class PlatformTest extends AbstractTestCase
 
         $this->packageFacade2Spy = spy(PackageFacadeSpyInterface::class);
         $this->packageFacade2Fqcn = get_class(new class implements PackageFacadeInterface {
+            private static bool $installed = false;
             public static PlatformTest $test;
 
             public static function getName(): string
@@ -96,11 +107,20 @@ class PlatformTest extends AbstractTestCase
             public static function install(PackageContextInterface $packageContext, PackageInterface $package): void
             {
                 self::$test->packageFacade2Spy->install($packageContext, $package);
+
+                self::$installed = true;
+            }
+
+            public static function isInstalled(): bool
+            {
+                return self::$installed;
             }
 
             public static function uninstall(): void
             {
                 self::$test->packageFacade2Spy->uninstall();
+
+                self::$installed = false;
             }
         });
         $this->package2 = mock(PackageInterface::class, [
