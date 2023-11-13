@@ -47,6 +47,8 @@ class PackageContext implements PackageContextInterface
      */
     public function getPackageCachePath(): string
     {
-        return $this->platformConfig->getBaseCachePath() . '/' . $this->packageFacadeFqcn::getName();
+        return $this->platformConfig->getBaseCachePath() . DIRECTORY_SEPARATOR .
+            $this->packageFacadeFqcn::getVendor() . DIRECTORY_SEPARATOR .
+            $this->packageFacadeFqcn::getName();
     }
 }
