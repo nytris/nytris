@@ -32,13 +32,13 @@ use Nytris\Tests\Unit\Harness\PackageFacadeSpyInterface;
 class PlatformTest extends AbstractTestCase
 {
     private MockInterface&BootConfigInterface $bootConfig;
-    private MockInterface&PackageInterface $package1;
+    private PackageInterface $package1;
     /**
      * @var class-string<PackageFacadeInterface>
      */
     private string $packageFacade1Fqcn;
     public MockInterface&PackageFacadeSpyInterface $packageFacade1Spy;
-    private MockInterface&PackageInterface $package2;
+    private PackageInterface $package2;
     /**
      * @var class-string<PackageFacadeInterface>
      */
@@ -84,9 +84,17 @@ class PlatformTest extends AbstractTestCase
                 self::$installed = false;
             }
         });
-        $this->package1 = mock(PackageInterface::class, [
-            'getPackageFacadeFqcn' => $this->packageFacade1Fqcn,
-        ]);
+        $this->package1 = new class($this->packageFacade1Fqcn) implements PackageInterface {
+            public function __construct(
+                private readonly string $packageFacadeFqcn
+            ) {
+            }
+
+            public function getPackageFacadeFqcn(): string
+            {
+                return $this->packageFacadeFqcn;
+            }
+        };
         $this->packageFacade1Fqcn::$test = $this;
 
         $this->packageFacade2Spy = spy(PackageFacadeSpyInterface::class);
@@ -123,9 +131,17 @@ class PlatformTest extends AbstractTestCase
                 self::$installed = false;
             }
         });
-        $this->package2 = mock(PackageInterface::class, [
-            'getPackageFacadeFqcn' => $this->packageFacade2Fqcn,
-        ]);
+        $this->package2 = new class($this->packageFacade2Fqcn) implements PackageInterface {
+            public function __construct(
+                private readonly string $packageFacadeFqcn
+            ) {
+            }
+
+            public function getPackageFacadeFqcn(): string
+            {
+                return $this->packageFacadeFqcn;
+            }
+        };
         $this->packageFacade2Fqcn::$test = $this;
 
         $this->bootConfig = mock(BootConfigInterface::class, [
@@ -146,6 +162,18 @@ class PlatformTest extends AbstractTestCase
             ->once();
 
         $this->platform->boot();
+    }
+
+    public function testIsPackageInstalledReturnsTrueWhenInstalled(): void
+    {
+        static::assertTrue($this->platform->isPackageInstalled($this->package1::class));
+    }
+
+    public function testIsPackageInstalledReturnsFalseWhenNotInstalled(): void
+    {
+        $package = mock(PackageInterface::class);
+
+        static::assertFalse($this->platform->isPackageInstalled($package::class));
     }
 
     public function testShutdownUninstallsAllRegisteredPackages(): void

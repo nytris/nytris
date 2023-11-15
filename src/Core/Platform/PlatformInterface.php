@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Nytris\Core\Platform;
 
+use Nytris\Core\Package\PackageInterface;
+
 /**
  * Interface PlatformInterface.
  *
@@ -26,6 +28,13 @@ interface PlatformInterface
      * Boots the Nytris platform.
      */
     public function boot(): void;
+
+    /**
+     * Determines whether the given Nytris package is installed.
+     *
+     * @param class-string<PackageInterface> $packageFqcn
+     */
+    public function isPackageInstalled(string $packageFqcn): bool;
 
     /**
      * Shuts down the Nytris platform.

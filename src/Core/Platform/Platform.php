@@ -50,6 +50,20 @@ class Platform implements PlatformInterface
     /**
      * @inheritDoc
      */
+    public function isPackageInstalled(string $packageFqcn): bool
+    {
+        foreach ($this->config->getPackages() as $package) {
+            if ($package instanceof $packageFqcn) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function shutdown(): void
     {
         foreach ($this->config->getPackages() as $package) {
