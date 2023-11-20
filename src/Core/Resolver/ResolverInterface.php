@@ -11,24 +11,15 @@
 
 declare(strict_types=1);
 
-namespace Nytris\Core\Package;
-
-use Nytris\Core\Config\ConfigInterface;
+namespace Nytris\Core\Resolver;
 
 /**
- * Interface PackageContextInterface.
- *
- * Provides the context for a specific Nytris package.
+ * Interface ResolverInterface.
  *
  * @author Dan Phillimore <dan@ovms.co>
  */
-interface PackageContextInterface extends ConfigInterface
+interface ResolverInterface
 {
-    /**
-     * Fetches the cache path for this package.
-     */
-    public function getPackageCachePath(): string;
-
     /**
      * Resolves the path to the root directory of the project.
      */

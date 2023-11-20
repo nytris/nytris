@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Nytris\Core\Package;
 
 use Nytris\Boot\PlatformConfigInterface;
+use Nytris\Core\Resolver\ResolverInterface;
 
 /**
  * Class PackageContext.
@@ -25,10 +26,12 @@ use Nytris\Boot\PlatformConfigInterface;
 class PackageContext implements PackageContextInterface
 {
     /**
+     *
      * @param PlatformConfigInterface $platformConfig
      * @param class-string<PackageFacadeInterface> $packageFacadeFqcn
      */
     public function __construct(
+        private readonly ResolverInterface $resolver,
         private readonly PlatformConfigInterface $platformConfig,
         private readonly string $packageFacadeFqcn
     ) {
@@ -50,5 +53,13 @@ class PackageContext implements PackageContextInterface
         return $this->platformConfig->getBaseCachePath() . DIRECTORY_SEPARATOR .
             $this->packageFacadeFqcn::getVendor() . DIRECTORY_SEPARATOR .
             $this->packageFacadeFqcn::getName();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function resolveProjectRoot(): string
+    {
+        return $this->resolver->resolveProjectRoot();
     }
 }

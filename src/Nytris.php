@@ -23,6 +23,7 @@ use Nytris\Core\Config\BootConfigResolverInterface;
 use Nytris\Core\Includer\Includer;
 use Nytris\Core\Platform\PlatformFactory;
 use Nytris\Core\Platform\PlatformInterface;
+use Nytris\Core\Resolver\Resolver;
 use ReflectionClass;
 
 /**
@@ -83,8 +84,9 @@ class Nytris
         ?BootstrapInterface $bootstrap = null,
         ?BootConfigResolverInterface $bootConfigResolver = null
     ): void {
-        self::$bootstrap = $bootstrap ?? new Bootstrap(new PlatformFactory());
-        $bootConfigResolver ??= new BootConfigResolver(new ReflectionClass(ClassLoader::class), new Includer());
+        $resolver = new Resolver(new ReflectionClass(ClassLoader::class));
+        self::$bootstrap = $bootstrap ?? new Bootstrap(new PlatformFactory($resolver));
+        $bootConfigResolver ??= new BootConfigResolver($resolver, new Includer());
 
         $bootConfig = $bootConfigResolver->resolveBootConfig();
 

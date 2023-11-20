@@ -21,6 +21,7 @@ use Nytris\Core\Package\PackageContextInterface;
 use Nytris\Core\Package\PackageFacadeInterface;
 use Nytris\Core\Package\PackageInterface;
 use Nytris\Core\Platform\Platform;
+use Nytris\Core\Resolver\ResolverInterface;
 use Nytris\Tests\AbstractTestCase;
 use Nytris\Tests\Unit\Harness\PackageFacadeSpyInterface;
 
@@ -46,6 +47,7 @@ class PlatformTest extends AbstractTestCase
     public MockInterface&PackageFacadeSpyInterface $packageFacade2Spy;
     private Platform $platform;
     private MockInterface&PlatformConfigInterface $platformConfig;
+    private MockInterface&ResolverInterface $resolver;
 
     public function setUp(): void
     {
@@ -148,8 +150,11 @@ class PlatformTest extends AbstractTestCase
             'getPackages' => [$this->package1, $this->package2],
             'getPlatformConfig' => $this->platformConfig,
         ]);
+        $this->resolver = mock(ResolverInterface::class, [
+            'resolveProjectRoot' => '/my/path/to/project_root',
+        ]);
 
-        $this->platform = new Platform($this->bootConfig);
+        $this->platform = new Platform($this->bootConfig, $this->resolver);
     }
 
     public function testBootInstallsAllRegisteredPackages(): void
@@ -174,6 +179,11 @@ class PlatformTest extends AbstractTestCase
         $package = mock(PackageInterface::class);
 
         static::assertFalse($this->platform->isPackageInstalled($package::class));
+    }
+
+    public function testResolveProjectRootFetchesFromResolver(): void
+    {
+        static::assertSame('/my/path/to/project_root', $this->platform->resolveProjectRoot());
     }
 
     public function testShutdownUninstallsAllRegisteredPackages(): void

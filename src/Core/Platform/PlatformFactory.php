@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace Nytris\Core\Platform;
 
-
 use Nytris\Boot\BootConfigInterface;
+use Nytris\Core\Resolver\ResolverInterface;
 
 /**
  * Class PlatformFactory.
@@ -23,11 +23,16 @@ use Nytris\Boot\BootConfigInterface;
  */
 class PlatformFactory implements PlatformFactoryInterface
 {
+    public function __construct(
+        private readonly ResolverInterface $resolver
+    ) {
+    }
+
     /**
      * @inheritDoc
      */
     public function createPlatform(BootConfigInterface $bootConfig): PlatformInterface
     {
-        return new Platform($bootConfig);
+        return new Platform($bootConfig, $this->resolver);
     }
 }

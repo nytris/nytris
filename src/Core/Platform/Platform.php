@@ -15,6 +15,7 @@ namespace Nytris\Core\Platform;
 
 use Nytris\Boot\BootConfigInterface;
 use Nytris\Core\Package\PackageContext;
+use Nytris\Core\Resolver\ResolverInterface;
 
 /**
  * Class Platform.
@@ -26,7 +27,8 @@ use Nytris\Core\Package\PackageContext;
 class Platform implements PlatformInterface
 {
     public function __construct(
-        private readonly BootConfigInterface $config
+        private readonly BootConfigInterface $config,
+        private readonly ResolverInterface $resolver
     ) {
     }
 
@@ -40,7 +42,7 @@ class Platform implements PlatformInterface
         foreach ($this->config->getPackages() as $package) {
             $packageFacadeFqcn = $package->getPackageFacadeFqcn();
 
-            $packageContext = new PackageContext($platformConfig, $packageFacadeFqcn);
+            $packageContext = new PackageContext($this->resolver, $platformConfig, $packageFacadeFqcn);
 
             /** @noinspection PhpUndefinedMethodInspection */
             $packageFacadeFqcn::install($packageContext, $package);
@@ -59,6 +61,14 @@ class Platform implements PlatformInterface
         }
 
         return false;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function resolveProjectRoot(): string
+    {
+        return $this->resolver->resolveProjectRoot();
     }
 
     /**

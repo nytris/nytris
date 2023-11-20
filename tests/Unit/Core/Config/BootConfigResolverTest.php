@@ -13,14 +13,13 @@ declare(strict_types=1);
 
 namespace Nytris\Tests\Unit\Core\Config;
 
-use Composer\Autoload\ClassLoader;
 use LogicException;
 use Mockery\MockInterface;
 use Nytris\Boot\BootConfigInterface;
 use Nytris\Core\Config\BootConfigResolver;
 use Nytris\Core\Includer\IncluderInterface;
+use Nytris\Core\Resolver\ResolverInterface;
 use Nytris\Tests\AbstractTestCase;
-use ReflectionClass;
 use stdClass;
 
 /**
@@ -31,27 +30,24 @@ use stdClass;
 class BootConfigResolverTest extends AbstractTestCase
 {
     private MockInterface&BootConfigInterface $bootConfig;
-    /**
-     * @var MockInterface&ReflectionClass<ClassLoader>
-     */
-    private MockInterface&ReflectionClass $classLoaderReflectionClass;
+    private BootConfigResolver $bootConfigResolver;
     private string $fixturesPath;
     private MockInterface&IncluderInterface $includer;
-    private BootConfigResolver $resolver;
+    private MockInterface&ResolverInterface $resolver;
 
     public function setUp(): void
     {
         $this->bootConfig = mock(BootConfigInterface::class);
         $this->fixturesPath = dirname(__DIR__, 2) . '/Fixtures';
-        $this->classLoaderReflectionClass = mock(ReflectionClass::class, [
-            'getFileName' => $this->fixturesPath . '/BootConfig/vendor/composer/ClassLoader.php',
-        ]);
         $this->includer = mock(IncluderInterface::class, [
             'isolatedInclude' => $this->bootConfig,
         ]);
+        $this->resolver = mock(ResolverInterface::class, [
+            'resolveProjectRoot' => $this->fixturesPath . '/BootConfig',
+        ]);
 
-        $this->resolver = new BootConfigResolver(
-            $this->classLoaderReflectionClass,
+        $this->bootConfigResolver = new BootConfigResolver(
+            $this->resolver,
             $this->includer,
             'my.config.php'
         );
@@ -59,18 +55,18 @@ class BootConfigResolverTest extends AbstractTestCase
 
     public function testResolveBootConfigReturnsResolvedBootConfigWhenPresent(): void
     {
-        static::assertSame($this->bootConfig, $this->resolver->resolveBootConfig());
+        static::assertSame($this->bootConfig, $this->bootConfigResolver->resolveBootConfig());
     }
 
     public function testResolveBootConfigReturnsNullWhenConfigFileNotPresent(): void
     {
-        $this->classLoaderReflectionClass->allows()
-            ->getFileName()
+        $this->resolver->allows()
+            ->resolveProjectRoot()
             ->andReturn(
-                dirname(__DIR__, 2) . '/Fixtures/BootConfig/not_present/vendor/composer/ClassLoader.php'
+                dirname(__DIR__, 2) . '/Fixtures/BootConfig/not_present'
             );
 
-        static::assertNull($this->resolver->resolveBootConfig());
+        static::assertNull($this->bootConfigResolver->resolveBootConfig());
     }
 
     public function testResolveBootConfigRaisesExceptionWhenConfigModuleReturnValueIsInvalid(): void
@@ -89,6 +85,6 @@ class BootConfigResolverTest extends AbstractTestCase
             )
         );
 
-        $this->resolver->resolveBootConfig();
+        $this->bootConfigResolver->resolveBootConfig();
     }
 }

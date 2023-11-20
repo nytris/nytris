@@ -37,6 +37,11 @@ interface PlatformInterface
     public function isPackageInstalled(string $packageFqcn): bool;
 
     /**
+     * Resolves the path to the root directory of the project.
+     */
+    public function resolveProjectRoot(): string;
+
+    /**
      * Shuts down the Nytris platform.
      */
     public function shutdown(): void;

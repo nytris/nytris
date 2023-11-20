@@ -13,11 +13,10 @@ declare(strict_types=1);
 
 namespace Nytris\Core\Config;
 
-use Composer\Autoload\ClassLoader;
 use LogicException;
 use Nytris\Boot\BootConfigInterface;
 use Nytris\Core\Includer\IncluderInterface;
-use ReflectionClass;
+use Nytris\Core\Resolver\ResolverInterface;
 
 /**
  * Class BootConfigResolver.
@@ -28,13 +27,8 @@ use ReflectionClass;
  */
 class BootConfigResolver implements BootConfigResolverInterface
 {
-    /**
-     * @param ReflectionClass<ClassLoader> $classLoaderReflectionClass
-     * @param IncluderInterface $includer
-     * @param string $configFileName
-     */
     public function __construct(
-        private readonly ReflectionClass $classLoaderReflectionClass,
+        private readonly ResolverInterface $resolver,
         private readonly IncluderInterface $includer,
         private readonly string $configFileName = 'nytris.config.php'
     ) {
@@ -45,9 +39,7 @@ class BootConfigResolver implements BootConfigResolverInterface
      */
     public function resolveBootConfig(): ?BootConfigInterface
     {
-        $projectRoot = dirname($this->classLoaderReflectionClass->getFileName(), 3);
-
-        $configPath = $projectRoot . '/' . $this->configFileName;
+        $configPath = $this->resolver->resolveProjectRoot() . DIRECTORY_SEPARATOR . $this->configFileName;
 
         if (!is_file($configPath)) {
             // Nytris boot config isn't present: nothing to do.

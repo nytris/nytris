@@ -19,6 +19,7 @@ use Nytris\Core\Package\PackageContext;
 use Nytris\Core\Package\PackageContextInterface;
 use Nytris\Core\Package\PackageFacadeInterface;
 use Nytris\Core\Package\PackageInterface;
+use Nytris\Core\Resolver\ResolverInterface;
 use Nytris\Tests\AbstractTestCase;
 
 /**
@@ -34,6 +35,7 @@ class PackageContextTest extends AbstractTestCase
      */
     private string $packageFacadeFqcn;
     private MockInterface&PlatformConfigInterface $platformConfig;
+    private MockInterface&ResolverInterface $resolver;
 
     public function setUp(): void
     {
@@ -68,8 +70,15 @@ class PackageContextTest extends AbstractTestCase
                 self::$installed = false;
             }
         });
+        $this->resolver = mock(ResolverInterface::class, [
+            'resolveProjectRoot' => '/my/project/root',
+        ]);
 
-        $this->packageContext = new PackageContext($this->platformConfig, $this->packageFacadeFqcn);
+        $this->packageContext = new PackageContext(
+            $this->resolver,
+            $this->platformConfig,
+            $this->packageFacadeFqcn
+        );
     }
 
     public function testGetBaseCachePathFetchesPathFromPlatformConfig(): void
@@ -80,5 +89,10 @@ class PackageContextTest extends AbstractTestCase
     public function testGetPackageCachePathBuildsCorrectPath(): void
     {
         static::assertSame('/path/to/my_cache/my_vendor/my_package', $this->packageContext->getPackageCachePath());
+    }
+
+    public function testResolveProjectRootGoesViaResolver(): void
+    {
+        static::assertSame('/my/project/root', $this->packageContext->resolveProjectRoot());
     }
 }
