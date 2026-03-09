@@ -9,7 +9,7 @@ You won't usually need to install this package directly with Composer,
 as it will be required by whichever Nytris packages you are using, but if so:
 
 ```shell
-$ composer install nytris/nytris
+$ composer require nytris/nytris
 ```
 
 ### Configuring platform boot config
